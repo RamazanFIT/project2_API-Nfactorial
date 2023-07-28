@@ -23,6 +23,7 @@ class Comment(Base):
     advert_id = Column(Integer)
     content = Column(String)
     created_at = Column(String)
+    
 class Comment_repo():
     def add_comment(self, db : Session, user : User, advert_id : int, comment : Comment_request) -> None:
         time_now = str(datetime.datetime.now())

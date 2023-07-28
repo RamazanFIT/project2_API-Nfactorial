@@ -36,7 +36,7 @@ def autorization(
     else:
         return (db, email["email"], user)
  
-@app.post("/auth/users/", response_model=UserResponse)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+@app.post("/auth/users/", response_model=UserResponse, tags=["Registration"])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 def signup_save(
     user : UserRequest,
     db : Session = Depends(get_db)
@@ -46,7 +46,7 @@ def signup_save(
     )
     return user
 
-@app.post("/auth/users/login")                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+@app.post("/auth/users/login", tags=["Logging"])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 def login(
     username : str = Form(),
     password : str = Form(),
@@ -58,7 +58,7 @@ def login(
         return {'access_token': shifr_email, 'type': 'bearer'}
     raise HTTPException(status_code=401, detail="Incorrect login or password")
 
-@app.patch("/auth/users/me")
+@app.patch("/auth/users/me", tags=["Changing data of USER"])
 def change_user_data(
     user_new_data : UserChangeRequest,
     tuple_ : tuple = Depends(autorization)
@@ -67,14 +67,14 @@ def change_user_data(
     users_repository.update_data(db, email, user_new_data)
     return users_repository.get_user_by_email(db, email)
 
-@app.get("/auth/users/me", response_model=UserResponse)
+@app.get("/auth/users/me", response_model=UserResponse, tags=["Get data of USER"])
 def get_user(
     tuple_ : tuple = Depends(autorization)
 ):
     db, email, user = tuple_
     return user
 
-@app.post("/shanyraks/")
+@app.post("/shanyraks/", tags=["Create an advert"])
 def add_advert(
     advert : Advert_request,
     tuple_ : tuple = Depends(autorization)
@@ -83,7 +83,7 @@ def add_advert(
     advert = adverts_repository.add_advert(db, advert, user)
     return {"id" : advert.advert_id}
 
-@app.get("/shanyraks/{id}", response_model=Advert_response)
+@app.get("/shanyraks/{id}", response_model=Advert_response, tags=["Get an advert"])
 def get_advert(
     id : int, 
     db = Depends(get_db)
@@ -96,7 +96,7 @@ def get_advert(
     else:
         raise HTTPException(404, "Does not exist such advert")
 
-@app.patch("/shanyraks/{id}")
+@app.patch("/shanyraks/{id}", tags=["Change an advert data"])
 def change_advert(
     new_data_of_advert : Advert_request,
     id : int,
@@ -108,7 +108,7 @@ def change_advert(
         raise HTTPException(403, "permission denied")
     return Response("Successfully changed")
 
-@app.delete("/shanyraks/{id}")
+@app.delete("/shanyraks/{id}", tags=["Delete an advert"])
 def delete_advert(
     id : int,
     tuple_ : tuple = Depends(autorization)
@@ -119,7 +119,7 @@ def delete_advert(
         raise HTTPException(403, "permission denied")
     return Response("Successfully deleted")
 
-@app.post("/shanyraks/{id}/comments")
+@app.post("/shanyraks/{id}/comments", tags=["Add comment to the Advert"])
 def add_comment(
     id : int,
     comment : Comment_request,
@@ -129,14 +129,14 @@ def add_comment(
     comments_repository.add_comment(db, user, id, comment)
     return Response("Successfully added comment")
 
-@app.get("/shanyraks/{id}/comments", response_model=List[Comment_response])
+@app.get("/shanyraks/{id}/comments", response_model=List[Comment_response], tags=["Get comments of an advert"])
 def get_comments(
     id : int,
     db = Depends(get_db)
 ):
     return comments_repository.get_comments(db, id)
 
-@app.patch("/shanyraks/{id}/comments/{comment_id}")
+@app.patch("/shanyraks/{id}/comments/{comment_id}", tags=["Change the comment"])
 def change_comment(
     new_data_of_comment : Comment_request,
     id : int,
@@ -149,7 +149,7 @@ def change_comment(
         raise HTTPException(403, "permission denied")
     return Response("Successfully changed comment")
 
-@app.delete("/shanyraks/{id}/comments/{comment_id}")
+@app.delete("/shanyraks/{id}/comments/{comment_id}", tags=["Delete the comment"])
 def delete_comment(
     id : int,
     comment_id : int,

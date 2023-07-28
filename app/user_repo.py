@@ -1,10 +1,10 @@
 import jwt
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from attrs import define
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import Session, relationship
 from .database import Base
-
+import re
 
 class UserChangeRequest(BaseModel):
     name : str | None = None
@@ -19,6 +19,46 @@ class UserRequest(BaseModel):
     password : str | None = None
     city : str | None = None
     phone : str | None = None 
+
+    @validator("email")
+    def validate_email(cls, email):
+        pattern = r"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$"
+        if re.search(pattern, email):
+            return email
+        else:
+            raise ValueError("Not correct email")
+    
+    @validator("password")
+    def validate_password(cls, password):
+        pattern = r"^.{6,20}$"
+        if re.search(pattern, password):
+            return password
+        else:
+            raise ValueError("Not correct password, password is too easy, imagine more difficult password, write the password which length is more than 6 symbbols")
+    
+    @validator("name")
+    def validate_name(cls, name):
+        pattern = r"^[a-zA-Z]+(?:[-\s][a-zA-Z]+)*$"
+        if re.search(pattern, name):
+            return name
+        else:
+            raise ValueError("Not correct name")
+    
+    @validator("surname")
+    def validate_surname(cls, surname):
+        pattern = r"^[a-zA-Z]+(?:[-\s][a-zA-Z]+)*$"
+        if re.search(pattern, surname):
+            return surname
+        else:
+            raise ValueError("Not correct surname")  
+    
+    @validator("phone")
+    def validate_phone(cls, phone):
+        pattern = r"^\+\d{1,3}\d{4,14}$"
+        if re.search(pattern, phone):
+            return phone
+        else:
+            raise ValueError("Not correct phone")
     
 class UserResponse(BaseModel):
     email: str
